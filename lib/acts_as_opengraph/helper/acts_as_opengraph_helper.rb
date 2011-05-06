@@ -46,7 +46,7 @@ module ActsAsOpengraphHelper
 
     if config[:xfbml]
       unless @fb_sdk_included
-        content_for :javascripts, fb_javascript_include_tag( config[:locale], config[:appid] )
+        content_for :opengraph_meta_tags, fb_sdk_meta_tags
       end
       %(<fb:like href="#{CGI.escape(href)}" layout="#{config[:layout]}" show_faces="#{config[:show_faces]}" action="#{config[:action]}" colorscheme="#{config[:colorscheme]}" width="#{config[:width]}" height="#{config[:height]}" font="#{config[:font]}"></fb:like>)
     else
@@ -54,23 +54,9 @@ module ActsAsOpengraphHelper
     end
   end
 
-  def fb_javascript_include_tag(appid='', locale='en_US')
+  def fb_sdk_meta_tags(appid='', locale='en_US')
     @fb_sdk_included = true
-    async_fb = <<-END
-      <div id="fb-root"></div>
-      <script>
-        window.fbAsyncInit = function() {
-          FB.init({appId: '#{ appid }', status: true, cookie: true,
-                   xfbml: true});
-        };
-        (function() {
-          var e = document.createElement('script'); e.async = true;
-          e.src = document.location.protocol +
-            '//connect.facebook.net/#{locale}/all.js';
-          document.getElementById('fb-root').appendChild(e);
-        }());
-      </script>
-    END
-    async_fb.html_safe
+    ( %(<meta property="fb:app_id" content="#{Facebook::APP_ID}"/>\n) +
+    %(<meta property="fb:locale" content="#{locale}"/>\n) ).html_safe
   end
 end
